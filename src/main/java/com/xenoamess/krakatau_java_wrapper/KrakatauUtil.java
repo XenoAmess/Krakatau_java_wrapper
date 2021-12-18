@@ -1,5 +1,6 @@
 package com.xenoamess.krakatau_java_wrapper;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.jetbrains.annotations.NotNull;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
@@ -32,9 +33,9 @@ public class KrakatauUtil {
         String[] params = new String[]{
                 "",
                 "-out",
-                new File(new File("").getAbsolutePath() + "/out/KrakatauUtil.j").getAbsolutePath(),
+                new File(new File("").getAbsolutePath() + "/out/out.zip").getAbsolutePath().replaceAll("\\\\","/"),
                 "-roundtrip",
-                "C:\\workspace\\Krakatau_java_wrapper\\target\\classes\\com\\xenoamess\\krakatau_java_wrapper\\KrakatauUtil.class"
+                "C:\\workspace\\Krakatau_java_wrapper\\target\\classes\\com\\xenoamess\\krakatau_java_wrapper\\KrakatauUtil.class".replaceAll("\\\\","/")
         };
 
         String pythonParams = buildPythonParams(params);
@@ -74,8 +75,8 @@ public class KrakatauUtil {
         String[] params = new String[]{
                 "",
                 "-out",
-                new File(new File("").getAbsolutePath() + "/out").getAbsolutePath(),
-                new File(new File("").getAbsolutePath() + "/out/KrakatauUtil.j").getAbsolutePath()
+                new File(new File("").getAbsolutePath() + "/out").getAbsolutePath().replaceAll("\\\\","/"),
+                new File(new File("").getAbsolutePath() + "/out/KrakatauUtil.j").getAbsolutePath().replaceAll("\\\\","/")
         };
 
         String pythonParams = buildPythonParams(params);
