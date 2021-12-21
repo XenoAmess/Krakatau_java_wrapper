@@ -63,8 +63,6 @@ public class KrakatauUtil {
         try {
             outputFolderFileObject.delete();
         } catch (Exception ignored) {
-
-
         }
 
         return res;
@@ -136,7 +134,6 @@ public class KrakatauUtil {
         try {
             fileObject.delete();
         } catch (Exception ignored) {
-
         }
 
         return res;
@@ -179,7 +176,6 @@ public class KrakatauUtil {
         try {
             outputFolderFileObject.delete();
         } catch (Exception ignored) {
-
         }
 
         return res;
