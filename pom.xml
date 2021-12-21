@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xenoamess</groupId>
-    <artifactId>Krakatau_java_wrapper</artifactId>
+    <artifactId>krakatau_java_wrapper</artifactId>
     <version>0.0.1</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
@@ -12,7 +12,7 @@
     <url>https://github.com/cyanpotion/x8l</url>
     <licenses>
         <license>
-            <name>MIT</name>
+            <name>GPLv3</name>
             <url>${project.url}/blob/master/LICENSE</url>
         </license>
     </licenses>
