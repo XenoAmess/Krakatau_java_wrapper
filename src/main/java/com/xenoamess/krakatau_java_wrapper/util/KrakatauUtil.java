@@ -84,11 +84,16 @@ public class KrakatauUtil {
     ) throws IOException {
         final String outputFilePath;
         if (tempFolderPathSupplier != null) {
-            outputFilePath = tempFolderPathSupplier.get() + "/" + UUID.randomUUID() + ".zip";
+            outputFilePath = tempFolderPathSupplier.get() + "/" + UUID.randomUUID() + ".j";
         } else {
             outputFilePath =
-                    Files.createTempFile("KrakatauJavaWrapperTempFileDisassemble", ".zip").toAbsolutePath().toFile().getAbsolutePath().replaceAll("\\\\", "/");
+                    Files.createTempFile("KrakatauJavaWrapperTempFileDisassemble", ".j").toAbsolutePath().toFile().getAbsolutePath().replaceAll("\\\\", "/");
         }
+
+        FileObject fileObject = VFS.getManager().toFileObject(new File(outputFilePath));
+
+        fileObject.createFile();
+
         Properties props = new Properties();
 
         props.put("python.console.encoding", "UTF-8");
@@ -122,12 +127,8 @@ public class KrakatauUtil {
             pythonInterpreter.execfile(bufferedInputStream);
         }
 
-        FileObject fileObject = VFS.getManager().toFileObject(new File(outputFilePath));
-        String zipFileUrl = "zip:" + fileObject.getURL().toString();
-        FileObject currentFileObject = VFS.getManager().resolveFile(zipFileUrl);
-
         String res = findOnlyChild(
-                currentFileObject,
+                fileObject,
                 ".j"
         ).getContent().getString(StandardCharsets.UTF_8);
 
@@ -160,9 +161,9 @@ public class KrakatauUtil {
                     Files.createTempFile("KrakatauJavaWrapperTempFileDisassemble", ".j").toAbsolutePath().toFile().getAbsolutePath().replaceAll("\\\\", "/");
         }
 
-        FileObject outputFolderFileObject = VFS.getManager().toFileObject(new File(tempFilePath));
+        FileObject outputFileObject = VFS.getManager().toFileObject(new File(tempFilePath));
         try (
-                OutputStream outputStream = outputFolderFileObject.getContent().getOutputStream();
+                OutputStream outputStream = outputFileObject.getContent().getOutputStream();
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream)
         ) {
             outputStreamWriter.write(inputKrakatauString);
@@ -174,7 +175,7 @@ public class KrakatauUtil {
         );
 
         try {
-            outputFolderFileObject.delete();
+            outputFileObject.delete();
         } catch (Exception ignored) {
         }
 
@@ -185,19 +186,15 @@ public class KrakatauUtil {
             @NotNull String inputFilePath,
             @Nullable Supplier<String> tempFolderPathSupplier
     ) throws IOException {
-        final String outputFolderPath;
+        final String outputFilePath;
         if (tempFolderPathSupplier != null) {
-            outputFolderPath = tempFolderPathSupplier.get();
+            outputFilePath = tempFolderPathSupplier.get() + "/" + UUID.randomUUID() + ".class";
         } else {
-            outputFolderPath =
-                    Files.createTempDirectory("KrakatauJavaWrapperTempFileAssemble").toAbsolutePath().toFile().getAbsolutePath().replaceAll("\\\\", "/");
+            outputFilePath =
+                    Files.createTempFile("KrakatauJavaWrapperTempFileAssemble", ".class").toAbsolutePath().toFile().getAbsolutePath().replaceAll("\\\\", "/");
         }
 
-        FileObject outputFolderFileObject = VFS.getManager().toFileObject(new File(outputFolderPath));
-        if (!outputFolderFileObject.isFolder()) {
-            throw new IllegalArgumentException("tempFolderPathSupplier illegal : folder must be folder ! " +
-                    "outputFolderPath : " + outputFolderPath);
-        }
+        FileObject outputFolderFileObject = VFS.getManager().toFileObject(new File(outputFilePath));
 
         Properties props = new Properties();
 
@@ -210,7 +207,7 @@ public class KrakatauUtil {
         String[] params = new String[]{
                 "",
                 "-out",
-                outputFolderPath,
+                outputFilePath,
                 inputFilePath
         };
 

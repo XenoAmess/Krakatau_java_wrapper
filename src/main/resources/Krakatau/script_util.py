@@ -178,10 +178,25 @@ class MockWriter(object):
     def __enter__(self): return self
     def __exit__(self, *args): pass
 
+class FileWriter(object):
+    def __init__(self, base_path, suffix):
+        self.base_path = base_path
+
+    def write(self, cname, data):
+        mode = 'wb' if isinstance(data, bytes) else 'w'
+        with open(self.base_path, mode) as f:
+            f.write(data)
+        return self.base_path
+
+    def __enter__(self): return self
+    def __exit__(self, *args): pass
+
 def makeWriter(base_path, suffix):
     if base_path is not None:
         if base_path.endswith('.zip') or base_path.endswith('.jar'):
             return JarWriter(base_path, suffix)
+        if base_path.endswith('.j') or base_path.endswith('.class'):
+            return FileWriter(base_path, suffix)
     return DirectoryWriter(base_path, suffix)
 
 ###############################################################################
