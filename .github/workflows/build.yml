@@ -13,8 +13,8 @@ jobs:
         experimental: [ false ]
 
     steps:
-      - uses: actions/checkout@v2.4.0
-      - uses: actions/cache@v2.1.7
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -28,4 +28,4 @@ jobs:
       - name: Build with mvnw
         run: |
           chmod 777 ./mvnw
-          ./mvnw install
+          ./mvnw install -Penforce
