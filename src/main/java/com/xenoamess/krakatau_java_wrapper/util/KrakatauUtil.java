@@ -1,6 +1,13 @@
 package com.xenoamess.krakatau_java_wrapper.util;
 
-import java.io.BufferedInputStream;
+import com.xenoamess.krakatau_java_wrapper.exception.CannotFindOutputException;
+import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.VFS;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,18 +16,8 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.function.Supplier;
-
-import com.xenoamess.krakatau_java_wrapper.exception.CannotFindOutputException;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.VFS;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.python.core.PySystemState;
-import org.python.util.PythonInterpreter;
 
 /**
  * @author XenoAmess
@@ -36,6 +33,26 @@ public class KrakatauUtil {
         );
     }
 
+    @NotNull
+    public static synchronized File assureKrak2File(@Nullable Supplier<String> tempFolderPathSupplier) throws IOException {
+        String krak2Path;
+        if (tempFolderPathSupplier != null) {
+            krak2Path = tempFolderPathSupplier.get() + "/krak2.exe";
+        } else {
+            krak2Path = SystemUtils.getJavaIoTmpDir() + "/krakatau_java_wrapper/krak2.exe";
+        }
+        File krak2File = new File(krak2Path);
+        if (krak2File.exists()) {
+            return krak2File;
+        }
+        Files.createDirectories(krak2File.getParentFile().toPath());
+        try (InputStream inputStream = KrakatauUtil.class.getResourceAsStream("/krak2.exe")) {
+            Files.copy(Objects.requireNonNull(inputStream), krak2File.toPath());
+        }
+        krak2File.deleteOnExit();
+        return krak2File;
+    }
+
     public static String disassemble(
             byte @NotNull [] inputClassBytes,
             @Nullable Supplier<String> tempFolderPathSupplier
@@ -44,8 +61,12 @@ public class KrakatauUtil {
         if (tempFolderPathSupplier != null) {
             tempFilePath = tempFolderPathSupplier.get() + "/" + UUID.randomUUID() + ".class";
         } else {
-            tempFilePath =
-                    Files.createTempFile("KrakatauJavaWrapperTempFileDisassemble", ".class").toAbsolutePath().toFile().getAbsolutePath().replaceAll("\\\\", "/");
+            tempFilePath = Files
+                    .createTempFile("KrakatauJavaWrapperTempFileDisassemble", ".class")
+                    .toAbsolutePath()
+                    .toFile()
+                    .getAbsolutePath()
+                    .replaceAll("\\\\", "/");
         }
 
         FileObject outputFolderFileObject = VFS.getManager().toFileObject(new File(tempFilePath));
@@ -86,45 +107,38 @@ public class KrakatauUtil {
         if (tempFolderPathSupplier != null) {
             outputFilePath = tempFolderPathSupplier.get() + "/" + UUID.randomUUID() + ".j";
         } else {
-            outputFilePath =
-                    Files.createTempFile("KrakatauJavaWrapperTempFileDisassemble", ".j").toAbsolutePath().toFile().getAbsolutePath().replaceAll("\\\\", "/");
+            outputFilePath = Files
+                    .createTempFile("KrakatauJavaWrapperTempFileDisassemble", ".j")
+                    .toAbsolutePath()
+                    .toFile()
+                    .getAbsolutePath()
+                    .replaceAll("\\\\", "/");
         }
 
         FileObject fileObject = VFS.getManager().toFileObject(new File(outputFilePath));
 
         fileObject.createFile();
 
-        Properties props = new Properties();
+        File krak2File = assureKrak2File(tempFolderPathSupplier);
 
-        props.put("python.console.encoding", "UTF-8");
-        props.put("python.security.respectJavaAccessibility", "false");
-        props.put("python.import.site", "false");
-
-        Properties preprops = System.getProperties();
-
-        String[] params = new String[]{
-                "",
-                "-out",
+        String[] command = new String[]{
+                krak2File.getAbsolutePath(),
+                "dis",
+                "--roundtrip",
+                "--out",
                 outputFilePath,
-                "-roundtrip",
                 inputFilePath
         };
 
-        String pythonParams = buildPythonParams(params);
-
-        PythonInterpreter.initialize(preprops, props, params);
-
-        PySystemState state = new PySystemState();
-
-        try (
-                InputStream inputStream = KrakatauUtil.class.getResourceAsStream("/disassemble.py");
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(Objects.requireNonNull(inputStream));
-                PythonInterpreter pythonInterpreter = new PythonInterpreter(null, state)
-        ) {
-            pythonInterpreter.exec("import sys");
-            pythonInterpreter.exec("sys.argv = " + pythonParams);
-            pythonInterpreter.exec("reload(sys)");
-            pythonInterpreter.execfile(bufferedInputStream);
+        try {
+            ProcessBuilder builder = new ProcessBuilder(
+                    command
+            );
+            builder.redirectErrorStream(true);
+            final Process process = builder.start();
+            process.waitFor();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         String res = findOnlyChild(
@@ -196,36 +210,25 @@ public class KrakatauUtil {
 
         FileObject outputFolderFileObject = VFS.getManager().toFileObject(new File(outputFilePath));
 
-        Properties props = new Properties();
+        File krak2File = assureKrak2File(tempFolderPathSupplier);
 
-        props.put("python.console.encoding", "UTF-8");
-        props.put("python.security.respectJavaAccessibility", "false");
-        props.put("python.import.site", "false");
-
-        Properties preprops = System.getProperties();
-
-        String[] params = new String[]{
-                "",
-                "-out",
+        String[] command = new String[]{
+                krak2File.getAbsolutePath(),
+                "asm",
+                "--out",
                 outputFilePath,
                 inputFilePath
         };
 
-        String pythonParams = buildPythonParams(params);
-
-        PythonInterpreter.initialize(preprops, props, new String[0]);
-
-        PySystemState state = new PySystemState();
-
-        try (
-                InputStream inputStream = KrakatauUtil.class.getResourceAsStream("/assemble.py");
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(Objects.requireNonNull(inputStream));
-                PythonInterpreter pythonInterpreter = new PythonInterpreter(null, state)
-        ) {
-            pythonInterpreter.exec("import sys");
-            pythonInterpreter.exec("sys.argv = " + pythonParams);
-            pythonInterpreter.exec("reload(sys)");
-            pythonInterpreter.execfile(bufferedInputStream);
+        try {
+            ProcessBuilder builder = new ProcessBuilder(
+                    command
+            );
+            builder.redirectErrorStream(true);
+            final Process process = builder.start();
+            process.waitFor();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         byte[] res = findOnlyChild(
@@ -239,16 +242,6 @@ public class KrakatauUtil {
         }
 
         return res;
-    }
-
-    @NotNull
-    private static String buildPythonParams(@NotNull String @NotNull [] params) {
-        StringBuilder stringBuilder = new StringBuilder("[");
-        for (String string : params) {
-            stringBuilder.append(" r\"").append(string).append("\" ,");
-        }
-        stringBuilder.append("]");
-        return stringBuilder.toString();
     }
 
     @NotNull
