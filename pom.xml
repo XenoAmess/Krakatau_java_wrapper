@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.xenoamess</groupId>
     <artifactId>krakatau_java_wrapper</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.4</version>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
     <description>Krakatau java wrapper</description>
@@ -44,31 +44,31 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-io.version>2.11.0</commons-io.version>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <annotations.version>23.0.0</annotations.version>
-        <jackson.version>2.13.2.20220328</jackson.version>
+        <annotations.version>24.0.0</annotations.version>
+        <jackson.version>2.14.2</jackson.version>
         <log4j.version>2.16.0</log4j.version>
         <slf4j.version>1.7.36</slf4j.version>
         <org.codehaus.jackson.version>1.9.13</org.codehaus.jackson.version>
-        <jetty.version>11.0.10</jetty.version>
+        <jetty.version>11.0.13</jetty.version>
         <!---->
         <!---->
         <!--maven plugins versions-->
-        <junit-jupiter.version>5.8.2</junit-jupiter.version>
+        <junit-jupiter.version>5.9.2</junit-jupiter.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-        <maven-deploy-plugin.version>3.0.0-M2</maven-deploy-plugin.version>
+        <maven-deploy-plugin.version>3.1.0</maven-deploy-plugin.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-        <maven-javadoc-plugin.version>3.3.2</maven-javadoc-plugin.version>
-        <maven-project-info-reports-plugin.version>3.2.2</maven-project-info-reports-plugin.version>
-        <maven-site-plugin.version>3.11.0</maven-site-plugin.version>
+        <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
+        <maven-project-info-reports-plugin.version>3.4.2</maven-project-info-reports-plugin.version>
+        <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M6</maven-surefire-plugin.version>
-        <versions-maven-plugin.version>2.10.0</versions-maven-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M9</maven-surefire-plugin.version>
+        <versions-maven-plugin.version>2.14.2</versions-maven-plugin.version>
         <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <!--enforce-->
         <enforce.activate>true</enforce.activate>
-        <maven-enforcer-plugin.version>3.0.0</maven-enforcer-plugin.version>
-        <checkstyle.plugin.version>3.1.2</checkstyle.plugin.version>
+        <maven-enforcer-plugin.version>3.2.1</maven-enforcer-plugin.version>
+        <checkstyle.plugin.version>3.2.1</checkstyle.plugin.version>
         <checkstyle.version>9.3</checkstyle.version>
         <checkstyle.configdir>src/site/resources/checkstyle</checkstyle.configdir>
     </properties>
@@ -199,11 +199,6 @@
             <version>${commons-vfs2.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.python</groupId>
-            <artifactId>jython</artifactId>
-            <version>2.7.2</version>
-        </dependency>
-        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>${annotations.version}</version>
@@ -252,7 +247,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.21</version>
+                <version>1.22</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains</groupId>
@@ -282,12 +277,12 @@
             <dependency>
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
-                <version>1.1.8.4</version>
+                <version>1.1.9.1</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.5.13</version>
+                <version>4.5.14</version>
             </dependency>
             <dependency>
                 <groupId>javax.enterprise</groupId>
@@ -327,7 +322,7 @@
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
-                <version>9.21</version>
+                <version>9.30.1</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
@@ -499,7 +494,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.8</version>
                 <executions>
                     <execution>
                         <goals>
