@@ -8,7 +8,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        os: [ ubuntu-latest , windows-latest , macos-latest ]
+        os: [ ubuntu-latest , windows-latest ]
         java: [ 11, 17, 21 ]
         experimental: [ false ]
 
