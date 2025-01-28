@@ -24,6 +24,13 @@ import java.util.function.Supplier;
  */
 public class KrakatauUtil {
 
+    public static String getKrak2ExeFileName() {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            return "krak2.exe";
+        }
+        return "krak2";
+    }
+
     public static String disassemble(
             byte @NotNull [] inputClassBytes
     ) throws IOException {
@@ -37,19 +44,23 @@ public class KrakatauUtil {
     public static synchronized File assureKrak2File(@Nullable Supplier<String> tempFolderPathSupplier) throws IOException {
         String krak2Path;
         if (tempFolderPathSupplier != null) {
-            krak2Path = tempFolderPathSupplier.get() + "/krak2.exe";
+            krak2Path = tempFolderPathSupplier.get() + "/" + getKrak2ExeFileName();
         } else {
-            krak2Path = SystemUtils.getJavaIoTmpDir() + "/krakatau_java_wrapper/krak2.exe";
+            krak2Path = SystemUtils.getJavaIoTmpDir() + "/krakatau_java_wrapper/" + getKrak2ExeFileName();
         }
         File krak2File = new File(krak2Path);
         if (krak2File.exists()) {
             return krak2File;
         }
         Files.createDirectories(krak2File.getParentFile().toPath());
-        try (InputStream inputStream = KrakatauUtil.class.getResourceAsStream("/krak2.exe")) {
+        try (InputStream inputStream = KrakatauUtil.class.getResourceAsStream("/" + getKrak2ExeFileName())) {
             Files.copy(Objects.requireNonNull(inputStream), krak2File.toPath());
         }
         krak2File.deleteOnExit();
+        try {
+            krak2File.setExecutable(true);
+        } catch (Exception ignored) {
+        }
         return krak2File;
     }
 
