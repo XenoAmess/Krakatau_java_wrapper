@@ -22,18 +22,21 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Check if auto-merge applicable (minor or patch only)
+      - name: Check if auto-merge applicable
         id: check
         run: |
           UPDATE_TYPE="${{ steps.meta.outputs.update-type }}"
+          HEAD_REF="${{ github.event.pull_request.head.ref }}"
           echo "Update type: $UPDATE_TYPE"
+          echo "Head ref: $HEAD_REF"
           if [[ "$UPDATE_TYPE" == "version-update:semver-patch" ]] || \
-             [[ "$UPDATE_TYPE" == "version-update:semver-minor" ]]; then
+             [[ "$UPDATE_TYPE" == "version-update:semver-minor" ]] || \
+             { [[ "$UPDATE_TYPE" == "version-update:semver-major" ]] && [[ "$HEAD_REF" == dependabot/github_actions/* ]]; }; then
             echo "should_merge=true" >> $GITHUB_OUTPUT
             echo "✅ Auto-merge applicable for $UPDATE_TYPE"
           else
             echo "should_merge=false" >> $GITHUB_OUTPUT
-            echo "❌ Auto-merge skipped for $UPDATE_TYPE (only patch/minor allowed)"
+            echo "❌ Auto-merge skipped for $UPDATE_TYPE (maven major left for human review)"
           fi
 
       - name: Approve dependabot PR
