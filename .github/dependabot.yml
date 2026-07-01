@@ -19,7 +19,6 @@ updates:
     labels:
       - "dependencies"
       - "java"
-    versioning-strategy: increase-if-necessary
     ignore:
       - dependency-name: "com.puppycrawl.tools:checkstyle"
         update-types: ["version-update:semver-major"]
