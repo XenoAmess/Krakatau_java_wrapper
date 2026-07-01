@@ -11,7 +11,9 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    if: |
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      github.event.pull_request.user.login == 'app/dependabot'
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -32,10 +34,10 @@ jobs:
           if [[ "$UPDATE_TYPE" == "version-update:semver-patch" ]] || \
              [[ "$UPDATE_TYPE" == "version-update:semver-minor" ]] || \
              { [[ "$UPDATE_TYPE" == "version-update:semver-major" ]] && [[ "$HEAD_REF" == dependabot/github_actions/* ]]; }; then
-            echo "should_merge=true" >> $GITHUB_OUTPUT
+            echo "should_merge=true" >> "$GITHUB_OUTPUT"
             echo "✅ Auto-merge applicable for $UPDATE_TYPE"
           else
-            echo "should_merge=false" >> $GITHUB_OUTPUT
+            echo "should_merge=false" >> "$GITHUB_OUTPUT"
             echo "❌ Auto-merge skipped for $UPDATE_TYPE (maven major left for human review)"
           fi
 
@@ -44,11 +46,11 @@ jobs:
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.MYTOKEN }}
 
       - name: Enable auto-merge (rebase)
         if: steps.check.outputs.should_merge == 'true'
         run: gh pr merge --auto --rebase "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.MYTOKEN }}
